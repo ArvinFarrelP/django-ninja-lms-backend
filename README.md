@@ -1,164 +1,467 @@
-# Simple LMS API
+# Simple LMS API - Advanced Features
 
-REST API untuk sistem Learning Management System (LMS) menggunakan Django Ninja dengan JWT Authentication dan Role-Based Access Control (RBAC).
+REST API Learning Management System menggunakan Django Ninja, Redis, MongoDB, Celery, RabbitMQ, dan Docker Compose.
 
 ---
 
-## Features
+# Features
 
-- JWT Authentication (Access & Refresh Token)
-- Role-Based Access Control (Admin, Instructor, Student)
-- Course Management (CRUD)
+- JWT Authentication
+- Role-Based Access Control (RBAC)
+- Course Management
 - Enrollment System
 - Progress Tracking
-- Pagination Support
+- Redis Caching
+- MongoDB Activity Logs
+- Learning Analytics
+- Celery Background Tasks
+- RabbitMQ Message Broker
+- Flower Monitoring
+- Docker Compose Integration
 - Swagger API Documentation
+- Django Admin Dashboard
 
 ---
 
-## Roles
+# Tech Stack
 
-| Role       | Permissions                     |
-| ---------- | ------------------------------- |
-| Admin      | Full access (CRUD semua course) |
-| Instructor | Create & manage own courses     |
-| Student    | Enroll & track progress         |
-
----
-
-## Authentication Flow
-
-1. Login untuk mendapatkan access token dan refresh token
-2. Gunakan access token untuk mengakses endpoint protected
-3. Jika token expired, gunakan refresh token untuk mendapatkan token baru
+| Technology     | Purpose                   |
+| -------------- | ------------------------- |
+| Django Ninja   | REST API Framework        |
+| PostgreSQL     | Main Database             |
+| Redis          | Caching                   |
+| MongoDB        | Activity Logs & Analytics |
+| Celery         | Asynchronous Tasks        |
+| RabbitMQ       | Message Broker            |
+| Flower         | Celery Monitoring         |
+| Docker Compose | Container Orchestration   |
 
 ---
 
-## API Endpoints
+# Redis Integration
 
-### Authentication
+Implemented caching features:
 
-- POST /api/auth/register
-- POST /api/auth/login
-- POST /api/auth/refresh
-- GET /api/auth/me
-- PUT /api/auth/me
+- Course list caching
+- Course detail caching
+- Cache invalidation strategy
+- Faster API response time
 
-### Courses
-
-- GET /api/courses
-- GET /api/courses/{id}
-- POST /api/courses (Instructor)
-- PATCH /api/courses/{id} (Owner/Admin)
-- DELETE /api/courses/{id} (Admin)
-
-### Enrollments
-
-- POST /api/enrollments
-- GET /api/enrollments/my-courses
-- POST /api/enrollments/{id}/progress
-
----
-
-## Pagination Example
-
-Request:
-
-```
-GET /api/courses?limit=10&offset=0
-```
-
-Response:
+Example cache response:
 
 ```json
 {
-  "count": 100,
+  "source": "redis cache",
+  "count": 0,
+  "results": []
+}
+```
+
+Example database response after cache invalidation:
+
+```json
+{
+  "source": "database",
+  "count": 0,
   "results": []
 }
 ```
 
 ---
 
-## API Documentation
+# MongoDB Integration
+
+MongoDB digunakan untuk:
+
+- Activity Logs
+- Learning Analytics
+- Event Tracking
+
+Collections:
+
+- activity_logs
+- learning_analytics
+
+Example activity log document:
+
+```json
+{
+  "username": "student1",
+  "action": "enroll_course",
+  "course_id": 4,
+  "timestamp": "2026-05-23T13:08:08Z"
+}
+```
+
+Example learning analytics document:
+
+```json
+{
+  "username": "student1",
+  "course_id": 4,
+  "event": "lesson_completed",
+  "timestamp": "2026-05-23T13:08:12Z"
+}
+```
+
+MongoDB integration example:
+
+```python
+from pymongo import MongoClient
+from datetime import datetime
+
+client = MongoClient(settings.MONGO_URI)
+db = client["lms_activity"]
+
+activity_logs = db["activity_logs"]
+
+activity_logs.insert_one({
+    "username": username,
+    "action": action,
+    "course_id": course_id,
+    "timestamp": datetime.utcnow()
+})
+```
+
+---
+
+# Celery Tasks
+
+Implemented asynchronous background tasks:
+
+| Task                     | Description                                  |
+| ------------------------ | -------------------------------------------- |
+| send_enrollment_email    | Send email after enrollment                  |
+| generate_certificate     | Generate certificate after completing course |
+| update_course_statistics | Update enrollment statistics                 |
+| export_course_report     | Export CSV course report                     |
+
+Example Celery task usage:
+
+```python
+from lms.tasks import *
+
+send_enrollment_email.delay(
+    "student1@example.com",
+    "Python Backend",
+    "student1"
+)
+
+generate_certificate.delay(
+    "student1",
+    "Python Backend"
+)
+
+update_course_statistics.delay()
+
+export_course_report.delay(4)
+```
+
+---
+
+# RabbitMQ Integration
+
+RabbitMQ digunakan sebagai message broker untuk Celery worker.
+
+Features:
+
+- Queue management
+- Background task distribution
+- Worker communication
+- Monitoring dashboard
+
+RabbitMQ Dashboard:
+
+```text
+http://localhost:15672
+```
+
+Default login:
+
+```text
+Username: guest
+Password: guest
+```
+
+---
+
+# Flower Monitoring
+
+Flower digunakan untuk monitoring Celery tasks dan workers.
+
+Features:
+
+- Worker monitoring
+- Task status tracking
+- Task success monitoring
+- Queue inspection
+
+Flower Dashboard:
+
+```text
+http://localhost:5555
+```
+
+---
+
+# Docker Compose Services
+
+Implemented services:
+
+```yaml
+services:
+  web:
+  db:
+  redis:
+  mongodb:
+  rabbitmq:
+  celery-worker:
+  celery-beat:
+  flower:
+```
+
+Check running containers:
+
+```bash
+docker-compose ps
+```
+
+---
+
+# API Endpoints
+
+## Authentication
+
+- POST /api/auth/register
+- POST /api/auth/login
+- POST /api/auth/refresh
+- GET /api/auth/me
+
+## Courses
+
+- GET /api/courses
+- GET /api/courses/{course_id}
+- POST /api/courses
+- PATCH /api/courses/{course_id}
+- DELETE /api/courses/{course_id}
+
+## Enrollments
+
+- POST /api/enrollments
+- GET /api/enrollments/my-courses
+- POST /api/enrollments/{enroll_id}/progress
+
+---
+
+# Swagger API Documentation
 
 Swagger UI tersedia di:
+
+```text
 http://localhost:8000/api/docs
-
----
-
-## Screenshots
-
-### Swagger Documentation
-
-![Swagger](img/swagger-docs.png)
-
-### Login (JWT Token)
-
-![Login](img/login-token.png)
-
-### Authorize Token
-
-![Authorize](img/authorize-token-input.png)
-![Authorize](img/authorize-token.png)
-
-### Get Current User
-
-![Auth Me](img/auth-me-success.png)
-
----
-
-## Installation
-
-### Clone Repository
-
 ```
+
+---
+
+# Django Admin Dashboard
+
+Django Admin tersedia di:
+
+```text
+http://localhost:8000/admin
+```
+
+---
+
+# Installation
+
+## Clone Repository
+
+```bash
 git clone https://github.com/ArvinFarrelP/simple-lms-api.git
 cd simple-lms-api
 ```
 
-### Run dengan Docker
+---
 
-```
+# Run Project
+
+```bash
 docker-compose up --build
 ```
 
-### Migration
+---
 
-```
+# Run Migration
+
+```bash
 docker-compose exec web python manage.py migrate
 ```
 
 ---
 
-## Testing
+# Create Superuser
 
-API dapat diuji menggunakan:
-
-- Swagger UI
-- Postman Collection
+```bash
+docker-compose exec web python manage.py createsuperuser
+```
 
 ---
 
-## Project Structure
+# MongoDB Commands
 
+Open Mongo Shell:
+
+```bash
+docker exec -it lms_mongodb mongosh
 ```
+
+Use database:
+
+```bash
+use lms_activity
+```
+
+Show collections:
+
+```bash
+show collections
+```
+
+View activity logs:
+
+```bash
+db.activity_logs.find().pretty()
+```
+
+View learning analytics:
+
+```bash
+db.learning_analytics.find().pretty()
+```
+
+---
+
+# Redis Commands
+
+Open Redis CLI:
+
+```bash
+docker exec -it lms_redis redis-cli
+```
+
+View cache keys:
+
+```bash
+KEYS *
+```
+
+Flush cache:
+
+```bash
+FLUSHALL
+```
+
+---
+
+# Project Structure
+
+```text
 api/
-lms/
 config/
+lms/
+img/
 docker-compose.yml
 requirements.txt
 README.md
-img/
 ```
 
 ---
 
-## Author
+# Screenshots
+
+## Swagger API Documentation
+
+![Swagger](img/swagger-api-documentation.png)
+
+---
+
+## Django Admin Dashboard
+
+![Admin Dashboard](img/django-admin-dashboard.png)
+
+---
+
+## Redis Cache Hit
+
+![Redis Cache](img/redis-cache-hit.png)
+
+---
+
+## Redis Database Hit
+
+![Redis Database](img/redis-database-hit.png)
+
+---
+
+## MongoDB Activity Logs
+
+![MongoDB](img/mongodb_activity_logs.png)
+
+---
+
+## Docker Compose Services
+
+![Docker Compose](img/mongodb-service-running.png)
+
+---
+
+## Flower Monitoring
+
+![Flower](img/flower-monitoring.png)
+
+---
+
+## Celery Tasks Success
+
+![Celery](img/celery-task-success.png)
+
+---
+
+## RabbitMQ Dashboard
+
+![RabbitMQ](img/rabbitmq-dashboard.png)
+
+---
+
+# Architecture Diagram
+
+```mermaid
+graph TD
+
+User --> DjangoAPI
+DjangoAPI --> PostgreSQL
+DjangoAPI --> Redis
+DjangoAPI --> MongoDB
+DjangoAPI --> RabbitMQ
+
+RabbitMQ --> CeleryWorker
+CeleryBeat --> CeleryWorker
+
+CeleryWorker --> Flower
+
+DjangoAPI --> Swagger
+DjangoAPI --> DjangoAdmin
+```
+
+---
+
+# Author
 
 Arvin Farrel Pramuditya
 
 ---
 
-## Conclusion
+# Conclusion
 
-Project ini mengimplementasikan REST API lengkap dengan authentication, authorization, dan best practices backend modern menggunakan Django Ninja.
+Project ini mengimplementasikan backend Learning Management System modern menggunakan Django Ninja dengan integrasi Redis caching, MongoDB logging, Celery asynchronous tasks, RabbitMQ message broker, Flower monitoring, dan Docker Compose orchestration.

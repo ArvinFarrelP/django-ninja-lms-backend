@@ -3,3 +3,13 @@ psycopg2-binary
 python-dotenv
 django-ninja
 PyJWT
+
+redis
+django-redis
+
+celery
+flower
+
+pymongo
+
+django-ratelimit
