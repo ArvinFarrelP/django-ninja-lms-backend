@@ -278,8 +278,8 @@ http://localhost:8000/admin
 ## Clone Repository
 
 ```bash
-git clone https://github.com/ArvinFarrelP/simple-lms-api.git
-cd simple-lms-api
+git clone https://github.com/ArvinFarrelP/simple-lms-advanced.git
+cd simple-lms-advanced
 ```
 
 ---
