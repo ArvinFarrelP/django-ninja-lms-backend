@@ -412,7 +412,13 @@ README.md
 
 ## Docker Compose Services
 
-![Docker Compose](img/mongodb-service-running.png)
+![Docker Compose](img/docker-service-running.png)
+
+---
+
+## Docker Desktop Overview
+
+![Docker Desktop](img/docker-desktop-running.png)
 
 ---
 
