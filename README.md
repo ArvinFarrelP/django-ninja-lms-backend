@@ -442,23 +442,7 @@ README.md
 
 # Architecture Diagram
 
-```mermaid
-graph TD
-
-User --> DjangoAPI
-DjangoAPI --> PostgreSQL
-DjangoAPI --> Redis
-DjangoAPI --> MongoDB
-DjangoAPI --> RabbitMQ
-
-RabbitMQ --> CeleryWorker
-CeleryBeat --> CeleryWorker
-
-CeleryWorker --> Flower
-
-DjangoAPI --> Swagger
-DjangoAPI --> DjangoAdmin
-```
+![Architecture Diagram](img/architecture-diagram.png)
 
 ---
 
