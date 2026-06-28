@@ -99,10 +99,6 @@ A production-like Learning Management System (LMS) REST API built using **Django
 
 The application follows a production-like backend architecture where the Django Ninja API communicates with multiple services. PostgreSQL stores relational data, Redis handles caching, MongoDB stores activity logs and analytics, RabbitMQ acts as the message broker, Celery Worker processes asynchronous tasks, Celery Beat schedules periodic jobs, and Flower provides real-time monitoring.
 
-<p align="center">
-    <img src="img/architecture-diagram.png" width="900">
-</p>
-
 Architecture Flow
 
 ```text
@@ -459,7 +455,7 @@ The data is now returned directly from Redis Cache without querying PostgreSQL.
 Screenshot
 
 ```text
-![Redis Cache Response](img/1_Redis_Cache/3_GET_kedua_(Redis Cache).png)
+![Redis Cache Response](img/1_Redis_Cache/3_GET_kedua_(Redis_Cache).png)
 ```
 
 ---
