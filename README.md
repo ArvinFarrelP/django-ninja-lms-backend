@@ -450,9 +450,7 @@ The data is now returned directly from Redis Cache without querying PostgreSQL.
 
 Screenshot
 
-```text
-![Redis Cache Response](img/1_Redis_Cache/3_GET_kedua_(Redis_Cache).png)
-```
+![Redis Cache Response](<img/1_Redis_Cache/3_GET_kedua_(Redis_Cache).png>)
 
 ---
 
