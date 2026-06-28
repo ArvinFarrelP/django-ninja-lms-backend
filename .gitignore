@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Environment
+.env
+.venv/
+venv/
+
+# Celery
+celerybeat-schedule
+
+# Generated reports
+reports/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store

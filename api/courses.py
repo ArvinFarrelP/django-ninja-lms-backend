@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 
 from lms.models import Course, Category
 from lms.mongo import log_activity
+from lms.tasks import export_course_report
 from .jwt_utils import decode_token
 from .permissions import get_user_from_token
 
@@ -108,9 +109,14 @@ def create_course(request, title: str, description: str, category_id: int = None
 
     cache.clear()
 
-    log_activity(user.username, "create_course", course_id=course.id, details={
-        "title": course.title
-    })
+    log_activity(
+        user.username,
+        "create_course",
+        course_id=course.id,
+        details={
+            "title": course.title
+        }
+    )
 
     return {
         "id": course.id,
@@ -120,7 +126,13 @@ def create_course(request, title: str, description: str, category_id: int = None
 
 
 @router.patch("/{course_id}")
-def update_course(request, course_id: int, title: str = None, description: str = None, category_id: int = None):
+def update_course(
+    request,
+    course_id: int,
+    title: str = None,
+    description: str = None,
+    category_id: int = None
+):
     user = get_user_from_token(request, decode_token)
 
     if not user:
@@ -149,6 +161,36 @@ def update_course(request, course_id: int, title: str = None, description: str =
     return {"message": "Course updated"}
 
 
+@router.post("/{course_id}/export")
+def export_course(request, course_id: int):
+    user = get_user_from_token(request, decode_token)
+
+    if not user:
+        return {"error": "Unauthorized"}
+
+    course = get_object_or_404(Course, id=course_id)
+
+    if course.instructor != user and user.role != "admin":
+        return {"error": "Not allowed"}
+
+    task = export_course_report.delay(course.id)
+
+    log_activity(
+        user.username,
+        "export_course_report",
+        course_id=course.id,
+        details={
+            "task_id": task.id
+        }
+    )
+
+    return {
+        "message": "Course report generation started",
+        "task_id": task.id,
+        "status": "queued"
+    }
+
+
 @router.delete("/{course_id}")
 def delete_course(request, course_id: int):
     user = get_user_from_token(request, decode_token)
@@ -165,8 +207,13 @@ def delete_course(request, course_id: int):
 
     cache.clear()
 
-    log_activity(user.username, "delete_course", course_id=course_id, details={
-        "title": title
-    })
+    log_activity(
+        user.username,
+        "delete_course",
+        course_id=course_id,
+        details={
+            "title": title
+        }
+    )
 
     return {"message": "deleted"}

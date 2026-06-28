@@ -149,11 +149,26 @@ CACHES = {
 # =========================
 
 CELERY_BROKER_URL = "amqp://guest:guest@rabbitmq:5672//"
+
+CELERY_RESULT_BACKEND = "redis://redis:6379/2"
+
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+
+CELERY_TIMEZONE = "Asia/Jakarta"
 
 # =========================
 # MONGODB
 # =========================
 
 MONGO_URI = "mongodb://mongodb:27017/"
+
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    "update-course-statistics-every-minute": {
+        "task": "lms.tasks.update_course_statistics",
+        "schedule": crontab(minute="*/1"),
+    },
+}

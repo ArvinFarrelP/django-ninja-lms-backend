@@ -33,12 +33,20 @@ def generate_certificate(username, course_title):
 
 @shared_task
 def update_course_statistics():
-    print("Course statistics updated")
+    from lms.models import Course, Enrollment
+
+    course_count = Course.objects.count()
+    enrollment_count = Enrollment.objects.count()
+
+    print(
+        f"[Statistics Updated] Courses={course_count}, Enrollments={enrollment_count}"
+    )
 
     return {
         "task": "update_course_statistics",
         "status": "success",
-        "message": "Course statistics updated successfully",
+        "courses": course_count,
+        "enrollments": enrollment_count,
         "timestamp": str(datetime.utcnow())
     }
 
