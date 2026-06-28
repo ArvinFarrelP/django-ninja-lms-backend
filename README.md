@@ -1073,9 +1073,7 @@ This confirms that the certificate generation task has been executed successfull
 
 Screenshot
 
-```
 ![Certificate Task](img/7_Async_Certificate/4_Flower.png)
-```
 
 ---
 
